@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-static const char *ARCHIVE_PATH = "commons/Archivio.dat";
-static const char *ARCHIVE_TMP_PATH = "commons/Archivio_tmp.dat";
+static const char *ARCHIVE_PATH = "src/commons/Archivio.dat";           // aggiornato path perche' mancava src/
+static const char *ARCHIVE_TMP_PATH = "src/commons/Archivio_tmp.dat";   // aggiornato path perche' mancava src/
 
 static int record_exists(FILE *fp, int matricola) {
     Record r;
@@ -129,4 +129,36 @@ int archivio_delete_physical(int matricola) {
     }
 
     return 1;
+}
+
+// funzione per cancellazione logica di un record
+int archivio_delete_logical(int matricola) {
+    Record r;
+    FILE *fp = fopen(ARCHIVE_PATH, "r+b");
+    // controllo di sicurezza per apertura del file (-1 rappresenta un errore)
+    if (!fp) {
+        return -1;
+    }
+
+    while (fread(&r, sizeof(Record), 1, fp) == 1) {
+        // trova il record con la matricola specificata e che non è già cancellato
+        if (r.matricola == matricola && r.cancellato == 0) {
+            r.cancellato = 1; // imposta il "flag" di cancellazione logica (1 = cancellato)
+            
+            // torna indietro di una posizione per sovrascrivere sul file (disco)
+            if (fseek(fp, -(long)sizeof(Record), SEEK_CUR) != 0) { // controllo di sicurezza per fseek, se fallisce, chiude il file e restituisce -1
+                fclose(fp);
+                return -1;
+            }
+            if (fwrite(&r, sizeof(Record), 1, fp) != 1) { // controllo di sicurezza per fwrite, se fallisce, chiude il file e restituisce -1
+                fclose(fp);
+                return -1;
+            }
+            fclose(fp);
+            return 1; // Successo
+        }
+    }
+
+    fclose(fp);
+    return 0; // se il while si conclude senza restituire niente, il record non è stato trovato o è già stato cancellato
 }

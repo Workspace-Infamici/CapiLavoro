@@ -8,8 +8,9 @@ static void menu(void) {
     printf("1. Aggiungi un record\n");
     printf("2. Visualizza archivio\n");
     printf("3. Modifica un record\n");
-    printf("4. Brilla un record\n");
-    printf("5. Esci\n");
+    printf("4. Cancella un record (logicamente)\n"); // nuova voce per cancellazione logica
+    printf("5. Brilla un record (fisicamente)\n");
+    printf("6. Esci\n");
 }
 
 int main(void) {
@@ -23,6 +24,7 @@ int main(void) {
         switch (choice) {
             case 1: {
                 Record r;
+                r.cancellato = 0; // quando aggiungo un nuovo record, lo imposto come non cancellato
                 read_int("Matricola: ", &r.matricola);
                 read_string("Nome: ", r.nome, sizeof(r.nome));
                 read_string("Cognome: ", r.cognome, sizeof(r.cognome));
@@ -50,6 +52,7 @@ int main(void) {
             case 3: {
                 int matricola = 0;
                 Record nuovo;
+                nuovo.cancellato = 0; // quando modifico un record, lo imposto come non cancellato 
                 read_int("Matricola da modificare: ", &matricola);
                 read_string("Nome: ", nuovo.nome, sizeof(nuovo.nome));
                 read_string("Cognome: ", nuovo.cognome, sizeof(nuovo.cognome));
@@ -67,7 +70,21 @@ int main(void) {
                 }
                 break;
             }
+            // nuovo case per cancellazione logica
             case 4: {
+                int matricola = 0;
+                read_int("Matricola da cancellare (logica): ", &matricola); // ho riutilizzato la funzione read_int per coerenza di Marlon
+                result = archivio_delete_logical(matricola); // chiamata alla funzione di cancellazione logica
+                if (result == 1) {
+                    printf("Record cancellato logicamente.\n");
+                } else if (result == 0) {
+                    printf("Matricola non trovata o gia' cancellata.\n");
+                } else {
+                    printf("Errore durante la cancellazione logica.\n");
+                }
+                break;
+            }
+            case 5: {
                 int matricola = 0;
                 read_int("Matricola da cancellare (fisica): ", &matricola);
                 result = archivio_delete_physical(matricola);
@@ -80,7 +97,7 @@ int main(void) {
                 }
                 break;
             }
-            case 5:
+            case 6:
                 printf("Uscita.\n");
                 return 0;
             default:
