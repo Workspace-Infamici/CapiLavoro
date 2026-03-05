@@ -52,7 +52,6 @@ int main(void) {
             case 3: {
                 int matricola = 0;
                 Record nuovo;
-                nuovo.cancellato = 0; // quando modifico un record, lo imposto come non cancellato 
                 read_int("Matricola da modificare: ", &matricola);
                 read_string("Nome: ", nuovo.nome, sizeof(nuovo.nome));
                 read_string("Cognome: ", nuovo.cognome, sizeof(nuovo.cognome));
