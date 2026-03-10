@@ -15,10 +15,10 @@ typedef struct {
 } Record;
 
 int archivio_add(const Record *r);
-int archivio_read_all();
+int archivio_read_all(void);
 int archivio_update(int matricola, const Record *nuovo);
 int archivio_delete_physical(int matricola);
-int archivio_delete_logical(int matricola); // Funzione per cancellazione logica (ho mantenuto la tua nomenclatura Marlon)
-int archivio_restore(int matricola); // Funzione per ripristinare un record cancellato (### DA IMPLEMENTARE ###)
+int archivio_delete_logical(int matricola); // Funzione per cancellazione logica
+int archivio_restore(int matricola);        // Funzione per ripristinare un record cancellato
 
 #endif
