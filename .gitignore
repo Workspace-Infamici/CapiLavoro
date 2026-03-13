@@ -1,0 +1,22 @@
+# --- IDE specifici ---
+.idea/
+.vscode/
+*.swp
+# --- Build e Compilazione ---
+build/
+cmake-build-debug/
+cmake-build-release/
+bin/
+out/
+CMakeLists.txt
+
+# --- File oggetto e eseguibili ---
+*.o
+*.a
+*.so
+*.exe
+*.out
+
+# --- Altro ---
+.DS_Store
+*.log
