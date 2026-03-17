@@ -4,9 +4,10 @@
 #define NAME_LEN 32
 #define SURNAME_LEN 32
 #define CLASS_LEN 4
+#define MATRICOLA_LEN 16
 
 typedef struct {
-    int matricola;
+    char matricola[MATRICOLA_LEN];
     int cancellato; // 0 = non cancellato, 1 = cancellato (nuovo campo per cancellazione logica)
     char nome[NAME_LEN];
     char cognome[SURNAME_LEN];
@@ -14,11 +15,11 @@ typedef struct {
     char classe[CLASS_LEN];
 } Record;
 
-int archivio_add(const Record *r);
+int archivio_add(Record *r);
 int archivio_read_all(void);
-int archivio_update(int matricola, const Record *nuovo);
-int archivio_delete_physical(int matricola);
-int archivio_delete_logical(int matricola); // Funzione per cancellazione logica
-int archivio_restore(int matricola);        // Funzione per ripristinare un record cancellato
+int archivio_update(const char *matricola, const Record *nuovo);
+int archivio_delete_physical(const char *matricola);
+int archivio_delete_logical(const char *matricola); // Funzione per cancellazione logica
+int archivio_restore(const char *matricola);        // Funzione per ripristinare un record cancellato
 
 #endif

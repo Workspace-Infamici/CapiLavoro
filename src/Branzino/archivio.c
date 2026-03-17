@@ -2,24 +2,38 @@
 #include "../utils/archivio.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 static const char *ARCHIVE_PATH = "src/commons/Archivio.dat";         // aggiornato path perche' mancava src/
 static const char *ARCHIVE_TMP_PATH = "src/commons/Archivio_tmp.dat"; // aggiornato path perche' mancava src/
 
-static int record_exists(FILE *fp, int matricola) {
+#define MATRICOLA_MIN 10000
+#define MATRICOLA_MAX 99999
+
+static void ensure_rng_seeded(void) {
+    static int seeded = 0;
+    if (!seeded) {
+        srand((unsigned)time(NULL));
+        seeded = 1;
+    }
+}
+
+static int record_exists(FILE *fp, const char *matricola) {
     Record r;
 
     fseek(fp, 0, SEEK_SET);
     clearerr(fp);
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
-        if (r.matricola == matricola) {
+        if (strcmp(r.matricola, matricola) == 0) {
             return 1;
         }
     }
     return 0;
 }
 
-int archivio_add(const Record *r) {
+int archivio_add(Record *r) {
     Record to_write;
     FILE *fp = fopen(ARCHIVE_PATH, "ab+");
     if (!fp) {
@@ -29,9 +43,16 @@ int archivio_add(const Record *r) {
         fclose(fp);
         return -1;
     }
-    if (record_exists(fp, r->matricola)) {
-        fclose(fp);
-        return 0;
+    ensure_rng_seeded();
+    for (;;) {
+        char candidate[MATRICOLA_LEN];
+        int number = MATRICOLA_MIN + (rand() % (MATRICOLA_MAX - MATRICOLA_MIN + 1));
+        snprintf(candidate, sizeof(candidate), "stu%d", number);
+        if (!record_exists(fp, candidate)) {
+            strncpy(r->matricola, candidate, sizeof(r->matricola));
+            r->matricola[sizeof(r->matricola) - 1] = '\0';
+            break;
+        }
     }
 
     to_write = *r;
@@ -55,16 +76,17 @@ int archivio_read_all(void) {
 
     printf("---- Archivio ----\n");
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
-        if (r.cancellato == 0) {
-            print_record(&r);
-            count++;
+        if (r.cancellato != 0) {
+            printf("[CANCELLATO] ");
         }
+        print_record(&r);
+        count++;
     }
     fclose(fp);
     return count;
 }
 
-int archivio_update(int matricola, const Record *nuovo) {
+int archivio_update(const char *matricola, const Record *nuovo) {
     Record r;
     FILE *fp = fopen(ARCHIVE_PATH, "r+b");
     if (!fp) {
@@ -72,13 +94,14 @@ int archivio_update(int matricola, const Record *nuovo) {
     }
 
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
-        if (r.matricola == matricola && r.cancellato == 0) {
+        if (strcmp(r.matricola, matricola) == 0 && r.cancellato == 0) {
             if (!nuovo) {
                 fclose(fp);
                 return -1;
             }
             r = *nuovo;
-            r.matricola = matricola;
+            strncpy(r.matricola, matricola, sizeof(r.matricola));
+            r.matricola[sizeof(r.matricola) - 1] = '\0';
             r.cancellato = 0;
 
             if (fseek(fp, -(long)sizeof(Record), SEEK_CUR) != 0) {
@@ -98,7 +121,7 @@ int archivio_update(int matricola, const Record *nuovo) {
     return 0;
 }
 
-int archivio_delete_physical(int matricola) {
+int archivio_delete_physical(const char *matricola) {
     int found = 0;
     Record r;
     FILE *fp = fopen(ARCHIVE_PATH, "rb");
@@ -115,7 +138,7 @@ int archivio_delete_physical(int matricola) {
     }
 
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
-        if (r.matricola == matricola) {
+        if (strcmp(r.matricola, matricola) == 0) {
             found = 1;
             continue;
         }
@@ -140,7 +163,7 @@ int archivio_delete_physical(int matricola) {
     return 1;
 }
 
-int archivio_delete_logical(int matricola) {
+int archivio_delete_logical(const char *matricola) {
     Record r;
     FILE *fp = fopen(ARCHIVE_PATH, "r+b");
     // controllo di sicurezza per apertura del file (-1 rappresenta un errore)
@@ -150,7 +173,7 @@ int archivio_delete_logical(int matricola) {
 
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
         // trova il record con la matricola specificata e che non e' gia' cancellato
-        if (r.matricola == matricola && r.cancellato == 0) {
+        if (strcmp(r.matricola, matricola) == 0 && r.cancellato == 0) {
             r.cancellato = 1; // imposta il "flag" di cancellazione logica (1 = cancellato)
 
             // torna indietro di una posizione per sovrascrivere sul file (disco)
@@ -173,7 +196,7 @@ int archivio_delete_logical(int matricola) {
     return 0; // se il while si conclude senza restituire niente, il record non e' stato trovato o e' gia' stato cancellato
 }
 
-int archivio_restore(int matricola) {
+int archivio_restore(const char *matricola) {
     Record r;
     FILE *fp = fopen(ARCHIVE_PATH, "r+b");
     if (!fp) {
@@ -181,7 +204,7 @@ int archivio_restore(int matricola) {
     }
 
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
-        if (r.matricola == matricola && r.cancellato == 1) {
+        if (strcmp(r.matricola, matricola) == 0 && r.cancellato == 1) {
             r.cancellato = 0;
 
             if (fseek(fp, -(long)sizeof(Record), SEEK_CUR) != 0) {
