@@ -3,6 +3,7 @@
 #include "general.h"
 
 #include <stdio.h>
+#include <string.h>
 
 void menu_principale() {
     printf("\n===== MENU PRINCIPALE =====\n");
@@ -41,7 +42,6 @@ void sessione_admin() {
         switch (choice) {
             case 1: {
                 Record r;
-                read_int("Matricola: ", &r.matricola);
                 read_string("Nome: ", r.nome, sizeof(r.nome));
                 read_string("Cognome: ", r.cognome, sizeof(r.cognome));
                 read_float("Stipendio: ", &r.stipendio);
@@ -50,7 +50,7 @@ void sessione_admin() {
 
                 result = archivio_add(&r);
                 if (result == 1) {
-                    printf("Record aggiunto.\n");
+                    printf("Record aggiunto. Matricola: %s\n", r.matricola);
                 } else if (result == 0) {
                     printf("Matricola gia' presente.\n");
                 } else {
@@ -67,14 +67,15 @@ void sessione_admin() {
                 }
                 break;
             case 3: {
-                int matricola = 0;
+                char matricola[MATRICOLA_LEN];
                 Record nuovo;
-                read_int("Matricola da modificare: ", &matricola);
+                read_string("Matricola da modificare: ", matricola, sizeof(matricola));
                 read_string("Nome: ", nuovo.nome, sizeof(nuovo.nome));
                 read_string("Cognome: ", nuovo.cognome, sizeof(nuovo.cognome));
                 read_float("Stipendio: ", &nuovo.stipendio);
                 read_string("Classe: ", nuovo.classe, sizeof(nuovo.classe));
-                nuovo.matricola = matricola;
+                strncpy(nuovo.matricola, matricola, sizeof(nuovo.matricola));
+                nuovo.matricola[sizeof(nuovo.matricola) - 1] = '\0';
                 nuovo.cancellato = 0;
 
                 result = archivio_update(matricola, &nuovo);
@@ -88,8 +89,8 @@ void sessione_admin() {
                 break;
             }
             case 4: {
-                int matricola = 0;
-                read_int("Matricola da cancellare (fisica): ", &matricola);
+                char matricola[MATRICOLA_LEN];
+                read_string("Matricola da cancellare (fisica): ", matricola, sizeof(matricola));
                 result = archivio_delete_physical(matricola);
                 if (result == 1) {
                     printf("Record cancellato fisicamente.\n");
@@ -101,8 +102,8 @@ void sessione_admin() {
                 break;
             }
             case 5: {
-                int matricola = 0;
-                read_int("Matricola da cancellare (logica): ", &matricola);
+                char matricola[MATRICOLA_LEN];
+                read_string("Matricola da cancellare (logica): ", matricola, sizeof(matricola));
                 result = archivio_delete_logical(matricola);
                 if (result == 1) {
                     printf("Record cancellato logicamente.\n");
@@ -114,8 +115,8 @@ void sessione_admin() {
                 break;
             }
             case 6: {
-                int matricola = 0;
-                read_int("Matricola da ripristinare: ", &matricola);
+                char matricola[MATRICOLA_LEN];
+                read_string("Matricola da ripristinare: ", matricola, sizeof(matricola));
                 result = archivio_restore(matricola);
                 if (result == 1) {
                     printf("Record ripristinato.\n");
@@ -151,7 +152,6 @@ void sessione_user() {
             // aggiungi un record
             case 1: {
                 Record r;
-                read_int("Matricola: ", &r.matricola);
                 read_string("Nome: ", r.nome, sizeof(r.nome));
                 read_string("Cognome: ", r.cognome, sizeof(r.cognome));
                 read_float("Stipendio: ", &r.stipendio);
@@ -160,7 +160,7 @@ void sessione_user() {
 
                 result = archivio_add(&r);
                 if (result == 1) {
-                    printf("Record aggiunto.\n");
+                    printf("Record aggiunto. Matricola: %s\n", r.matricola);
                 } else if (result == 0) {
                     printf("Matricola gia' presente.\n");
                 } else {
@@ -179,8 +179,8 @@ void sessione_user() {
                 break;
             // cancellazione logica
             case 3: {
-                int matricola = 0;
-                read_int("Matricola da cancellare (logica): ", &matricola);
+                char matricola[MATRICOLA_LEN];
+                read_string("Matricola da cancellare (logica): ", matricola, sizeof(matricola));
                 result = archivio_delete_logical(matricola);
                 if (result == 1) {
                     printf("Record cancellato logicamente.\n");
