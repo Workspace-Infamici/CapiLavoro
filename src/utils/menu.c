@@ -28,6 +28,7 @@ void menu_user() {
     printf("1. Aggiungi un record\n");
     printf("2. Visualizza archivio\n");
     printf("3. Logout (Torna al Menu Principale)\n");
+    printf("3. Logout (Torna al Menu Principale)\n");
 }
 
 void sessione_admin() {
@@ -36,6 +37,7 @@ void sessione_admin() {
 
     // le menti piu' sagaci riconosceranno il riferimento nella seguente riga
     for (;;) {
+        pulisci_schermo();
         pulisci_schermo();
         menu_admin();
         read_int("Scelta: ", &choice);
@@ -58,6 +60,7 @@ void sessione_admin() {
                     printf("Errore scrittura.\n");
                 }
                 pausa_console();
+                pausa_console();
                 break;
             }
             // Visualizza archivio
@@ -68,6 +71,7 @@ void sessione_admin() {
                 } else if (result == 0) {
                     printf("Archivio vuoto.\n");
                 }
+                pausa_console();
                 pausa_console();
                 break;
             // Modifica un record
@@ -104,11 +108,6 @@ void sessione_admin() {
                     pausa_console();
                     break;
                 }
-<<<<<<< HEAD
-=======
-                pausa_console();
-                break;
->>>>>>> c05b99a73056ba29ad6aebf382208b2bb249e521
             }
             // Cancellazione fisica
             case 4: {
@@ -135,11 +134,6 @@ void sessione_admin() {
                     pausa_console();
                     break;
                 }
-<<<<<<< HEAD
-=======
-                pausa_console();
-                break;
->>>>>>> c05b99a73056ba29ad6aebf382208b2bb249e521
             }
             // Cancellazione logica
             case 5: {
@@ -166,11 +160,6 @@ void sessione_admin() {
                     pausa_console();
                     break;
                 }
-<<<<<<< HEAD
-=======
-                pausa_console();
-                break;
->>>>>>> c05b99a73056ba29ad6aebf382208b2bb249e521
             }
             // Ripristina record
             case 6: {
@@ -197,11 +186,6 @@ void sessione_admin() {
                     pausa_console();
                     break;
                 }
-<<<<<<< HEAD
-=======
-                pausa_console();
-                break;
->>>>>>> c05b99a73056ba29ad6aebf382208b2bb249e521
             }
             // Logout
             case 7:
@@ -222,6 +206,7 @@ void sessione_user() {
     // ### DA VALUTARE QUALI OPERAZIONI PERMETTERE AGLI UTENTI (FORSE SOLO AGGIUNTA E VISUALIZZAZIONE?) ###
     do {
         // mostra il menu utente e legge la scelta
+        pulisci_schermo();
         pulisci_schermo();
         menu_user();
         read_int("Scelta: ", &choice);
@@ -245,6 +230,7 @@ void sessione_user() {
                     printf("Errore scrittura.\n");
                 }
                 pausa_console();
+                pausa_console();
                 break;
             }
             // Visualizza archivio
@@ -257,11 +243,7 @@ void sessione_user() {
                 }
                 pausa_console();
                 break;
-<<<<<<< HEAD
             // Logout
-=======
-            // logout
->>>>>>> c05b99a73056ba29ad6aebf382208b2bb249e521
             case 3:
                 printf("Uscita.\n");
                 in_esecuzione = 0; // imposta il flag a 0 per uscire dal loop

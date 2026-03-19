@@ -20,8 +20,6 @@ int main() {
             case 1:
                 printf("Benvenuto Utente!\n");
                 sessione_user();
-                printf("Benvenuto Utente!\n");
-                sessione_user();
                 break;
             case 2: {
                 char password[64];
@@ -31,18 +29,9 @@ int main() {
                 if (strcmp(password, "mannoale123") == 0) {
                     printf("\nAccesso Admin consentito.\n");
                     sessione_admin();
-                char password[64];
-                read_password("Inserisci password Admin: ", password, sizeof(password));
-                
-                // password hardcodata per semplicita', in futuro da sostituire con autenticazione piu' robusta (hash?)
-                if (strcmp(password, "mannoale123") == 0) {
-                    printf("\nAccesso Admin consentito.\n");
-                    sessione_admin();
                 } else {
                     printf("\nAccesso Negato: password errata!\n");
-                    printf("\nAccesso Negato: password errata!\n");
                 }
-                pausa_console();
                 pausa_console();
                 break;
             }
@@ -53,9 +42,6 @@ int main() {
             default:
                 printf("Scelta non valida.\n");
         }
-    } while (in_esecuzione);
-
-    return 0;
     } while (in_esecuzione);
 
     return 0;
