@@ -28,7 +28,6 @@ void menu_user() {
     printf("1. Aggiungi un record\n");
     printf("2. Visualizza archivio\n");
     printf("3. Logout (Torna al Menu Principale)\n");
-    printf("3. Logout (Torna al Menu Principale)\n");
 }
 
 void sessione_admin() {
@@ -37,7 +36,6 @@ void sessione_admin() {
 
     // le menti piu' sagaci riconosceranno il riferimento nella seguente riga
     for (;;) {
-        pulisci_schermo();
         pulisci_schermo();
         menu_admin();
         read_int("Scelta: ", &choice);
@@ -60,7 +58,6 @@ void sessione_admin() {
                     printf("Errore scrittura.\n");
                 }
                 pausa_console();
-                pausa_console();
                 break;
             }
             // Visualizza archivio
@@ -71,7 +68,6 @@ void sessione_admin() {
                 } else if (result == 0) {
                     printf("Archivio vuoto.\n");
                 }
-                pausa_console();
                 pausa_console();
                 break;
             // Modifica un record
@@ -111,29 +107,18 @@ void sessione_admin() {
             }
             // Cancellazione fisica
             case 4: {
-                result = archivio_read_all();
-                if (result < 0) {
-                    printf("Archivio vuoto o inesistente.\n");
-                    pausa_console();
-                    break;
+                char matricola[MATRICOLA_LEN];
+                read_string("Matricola da cancellare (fisica): ", matricola, sizeof(matricola));
+                result = archivio_delete_physical(matricola);
+                if (result == 1) {
+                    printf("Record cancellato fisicamente.\n");
                 } else if (result == 0) {
-                    printf("Archivio vuoto.\n");
-                    pausa_console();
-                    break;
+                    printf("Matricola non trovata.\n");
                 } else {
-                    char matricola[MATRICOLA_LEN];
-                    read_string("Matricola da cancellare (fisica): ", matricola, sizeof(matricola));
-                    result = archivio_delete_physical(matricola);
-                    if (result == 1) {
-                        printf("Record cancellato fisicamente.\n");
-                    } else if (result == 0) {
-                        printf("Matricola non trovata.\n");
-                    } else {
-                        printf("Errore durante la cancellazione.\n");
-                    }
-                    pausa_console();
-                    break;
+                    printf("Errore durante la cancellazione.\n");
                 }
+                pausa_console();
+                break;
             }
             // Cancellazione logica
             case 5: {
@@ -207,7 +192,6 @@ void sessione_user() {
     do {
         // mostra il menu utente e legge la scelta
         pulisci_schermo();
-        pulisci_schermo();
         menu_user();
         read_int("Scelta: ", &choice);
 
@@ -229,7 +213,6 @@ void sessione_user() {
                 } else {
                     printf("Errore scrittura.\n");
                 }
-                pausa_console();
                 pausa_console();
                 break;
             }
