@@ -104,6 +104,11 @@ void sessione_admin() {
                     pausa_console();
                     break;
                 }
+<<<<<<< HEAD
+=======
+                pausa_console();
+                break;
+>>>>>>> c05b99a73056ba29ad6aebf382208b2bb249e521
             }
             // Cancellazione fisica
             case 4: {
@@ -130,6 +135,11 @@ void sessione_admin() {
                     pausa_console();
                     break;
                 }
+<<<<<<< HEAD
+=======
+                pausa_console();
+                break;
+>>>>>>> c05b99a73056ba29ad6aebf382208b2bb249e521
             }
             // Cancellazione logica
             case 5: {
@@ -156,6 +166,11 @@ void sessione_admin() {
                     pausa_console();
                     break;
                 }
+<<<<<<< HEAD
+=======
+                pausa_console();
+                break;
+>>>>>>> c05b99a73056ba29ad6aebf382208b2bb249e521
             }
             // Ripristina record
             case 6: {
@@ -182,6 +197,11 @@ void sessione_admin() {
                     pausa_console();
                     break;
                 }
+<<<<<<< HEAD
+=======
+                pausa_console();
+                break;
+>>>>>>> c05b99a73056ba29ad6aebf382208b2bb249e521
             }
             // Logout
             case 7:
@@ -237,7 +257,11 @@ void sessione_user() {
                 }
                 pausa_console();
                 break;
+<<<<<<< HEAD
             // Logout
+=======
+            // logout
+>>>>>>> c05b99a73056ba29ad6aebf382208b2bb249e521
             case 3:
                 printf("Uscita.\n");
                 in_esecuzione = 0; // imposta il flag a 0 per uscire dal loop

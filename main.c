@@ -1,8 +1,22 @@
 #include "Branzino/archivio.h"
 #include "utils/general.h"
 #include "utils/menu.h"
+#include "utils/menu.h"
 
 #include <stdio.h>
+#include <string.h> // per il confronto delle password
+
+int main() {
+    int scelta = 0;
+    int in_esecuzione = 1; // flag di controllo del loop
+
+    // il loop continua finché in_esecuzione è vero (!= 0)
+    do {
+        pulisci_schermo();
+        menu_principale();
+        read_int("Scelta: ", &scelta);
+        
+        switch (scelta) {
 #include <string.h> // per il confronto delle password
 
 int main() {
@@ -19,6 +33,8 @@ int main() {
             case 1:
                 printf("Benvenuto Utente!\n");
                 sessione_user();
+                printf("Benvenuto Utente!\n");
+                sessione_user();
                 break;
             case 2: {
                 char password[64];
@@ -28,9 +44,18 @@ int main() {
                 if (strcmp(password, "mannoale123") == 0) {
                     printf("\nAccesso Admin consentito.\n");
                     sessione_admin();
+                char password[64];
+                read_password("Inserisci password Admin: ", password, sizeof(password));
+                
+                // password hardcodata per semplicita', in futuro da sostituire con autenticazione piu' robusta (hash?)
+                if (strcmp(password, "mannoale123") == 0) {
+                    printf("\nAccesso Admin consentito.\n");
+                    sessione_admin();
                 } else {
                     printf("\nAccesso Negato: password errata!\n");
+                    printf("\nAccesso Negato: password errata!\n");
                 }
+                pausa_console();
                 pausa_console();
                 break;
             }
@@ -41,6 +66,9 @@ int main() {
             default:
                 printf("Scelta non valida.\n");
         }
+    } while (in_esecuzione);
+
+    return 0;
     } while (in_esecuzione);
 
     return 0;
