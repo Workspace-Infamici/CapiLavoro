@@ -27,8 +27,7 @@ void menu_user() {
     printf("\n===== Archivio (Utente) =====\n");
     printf("1. Aggiungi un record\n");
     printf("2. Visualizza archivio\n");
-    printf("3. Cancellazione logica\n");
-    printf("4. Logout (Torna al Menu Principale)\n");
+    printf("3. Logout (Torna al Menu Principale)\n");
 }
 
 void sessione_admin() {
@@ -37,6 +36,7 @@ void sessione_admin() {
 
     // le menti piu' sagaci riconosceranno il riferimento nella seguente riga
     for (;;) {
+        pulisci_schermo();
         menu_admin();
         read_int("Scelta: ", &choice);
         switch (choice) {
@@ -56,6 +56,7 @@ void sessione_admin() {
                 } else {
                     printf("Errore scrittura.\n");
                 }
+                pausa_console();
                 break;
             }
             case 2:
@@ -65,6 +66,7 @@ void sessione_admin() {
                 } else if (result == 0) {
                     printf("Archivio vuoto.\n");
                 }
+                pausa_console();
                 break;
             case 3: {
                 char matricola[MATRICOLA_LEN];
@@ -86,6 +88,7 @@ void sessione_admin() {
                 } else {
                     printf("Errore scrittura.\n");
                 }
+                pausa_console();
                 break;
             }
             case 4: {
@@ -99,6 +102,7 @@ void sessione_admin() {
                 } else {
                     printf("Errore durante la cancellazione.\n");
                 }
+                pausa_console();
                 break;
             }
             case 5: {
@@ -112,6 +116,7 @@ void sessione_admin() {
                 } else {
                     printf("Errore durante la cancellazione.\n");
                 }
+                pausa_console();
                 break;
             }
             case 6: {
@@ -125,6 +130,7 @@ void sessione_admin() {
                 } else {
                     printf("Errore durante il ripristino.\n");
                 }
+                pausa_console();
                 break;
             }
             case 7:
@@ -145,6 +151,7 @@ void sessione_user() {
     // ### DA VALUTARE QUALI OPERAZIONI PERMETTERE AGLI UTENTI (FORSE SOLO AGGIUNTA E VISUALIZZAZIONE?) ###
     do {
         // mostra il menu utente e legge la scelta
+        pulisci_schermo();
         menu_user();
         read_int("Scelta: ", &choice);
 
@@ -166,6 +173,7 @@ void sessione_user() {
                 } else {
                     printf("Errore scrittura.\n");
                 }
+                pausa_console();
                 break;
             }
             // visualizza archivio
@@ -176,23 +184,10 @@ void sessione_user() {
                 } else if (result == 0) {
                     printf("Archivio vuoto.\n");
                 }
+                pausa_console();
                 break;
-            // cancellazione logica
-            case 3: {
-                char matricola[MATRICOLA_LEN];
-                read_string("Matricola da cancellare (logica): ", matricola, sizeof(matricola));
-                result = archivio_delete_logical(matricola);
-                if (result == 1) {
-                    printf("Record cancellato logicamente.\n");
-                } else if (result == 0) {
-                    printf("Matricola non trovata o gia' cancellata.\n");
-                } else {
-                    printf("Errore durante la cancellazione.\n");
-                }
-                break;
-            }
             // logout
-            case 4:
+            case 3:
                 printf("Uscita.\n");
                 in_esecuzione = 0; // imposta il flag a 0 per uscire dal loop
                 break;

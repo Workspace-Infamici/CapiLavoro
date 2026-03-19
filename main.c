@@ -5,12 +5,13 @@
 #include <stdio.h>
 #include <string.h> // per il confronto delle password
 
-int main(void) {
+int main() {
     int scelta = 0;
     int in_esecuzione = 1; // flag di controllo del loop
 
     // il loop continua finché in_esecuzione è vero (!= 0)
     do {
+        pulisci_schermo();
         menu_principale();
         read_int("Scelta: ", &scelta);
         
@@ -19,7 +20,7 @@ int main(void) {
                 printf("Benvenuto Utente!\n");
                 sessione_user();
                 break;
-            case 2:
+            case 2: {
                 char password[64];
                 read_password("Inserisci password Admin: ", password, sizeof(password));
                 
@@ -30,10 +31,13 @@ int main(void) {
                 } else {
                     printf("\nAccesso Negato: password errata!\n");
                 }
+                pausa_console();
                 break;
+            }
             case 3:
                 printf("Hai scelto di uscire dal programma.\n");
                 in_esecuzione = 0; // imposta il flag a 0 per uscire dal loop
+                pausa_console();
                 break;
             default:
                 printf("Scelta non valida.\n");
