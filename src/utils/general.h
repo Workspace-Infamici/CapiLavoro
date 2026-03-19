@@ -15,4 +15,8 @@ void print_int(const void *data);
 void print_float(const void *data);
 void print_cstring(const void *data);
 
+// Funzioni per gestire l'interfaccia
+void pulisci_schermo();
+void pausa_console();
+
 #endif

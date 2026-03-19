@@ -12,6 +12,8 @@ static const char *ARCHIVE_TMP_PATH = "src/commons/Archivio_tmp.dat"; // aggiorn
 #define MATRICOLA_MIN 10000
 #define MATRICOLA_MAX 99999
 
+
+// Funzione per assicurarsi che il generatore di numeri casuali sia inizializzato solo una volta
 static void ensure_rng_seeded(void) {
     static int seeded = 0;
     if (!seeded) {
@@ -20,10 +22,11 @@ static void ensure_rng_seeded(void) {
     }
 }
 
+// Funzione per verificare se una matricola esiste già nell'archivio
 static int record_exists(FILE *fp, const char *matricola) {
     Record r;
 
-    fseek(fp, 0, SEEK_SET);
+    fseek(fp, sizeof(Header), SEEK_SET);
     clearerr(fp);
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
         if (strcmp(r.matricola, matricola) == 0) {
@@ -35,10 +38,25 @@ static int record_exists(FILE *fp, const char *matricola) {
 
 int archivio_add(Record *r) {
     Record to_write;
-    FILE *fp = fopen(ARCHIVE_PATH, "ab+");
+    Header h = {0, 0}; // Inizializzo un header a zero per sicurezza (Parametri: record_totali e record_cancellati)
+
+    FILE *fp = fopen(ARCHIVE_PATH, "rb+"); // Provo ad aprire in modalità lettura/scrittura
     if (!fp) {
-        return -1;
+        // Se rb+ fallisce, il file non esiste, quindi lo creo e lo apro in modalità scrittura/lettura (wb+)
+        fp = fopen(ARCHIVE_PATH, "wb+");
+        if (!fp) {
+            return -1;
+        }
+        fwrite(&h, sizeof(Header), 1, fp); // essendo un file nuovo, scrivo l'header iniziale con valori a zero
+    } else {
+        // Se il file esiste già, leggo l'header per avere i contatori aggiornati
+        if (fread(&h, sizeof(Header), 1, fp) != 1) {
+            // Reset a 0 se la lettura dell'header fallisce
+            h.record_totali = 0;
+            h.record_cancellati = 0;
+        }
     }
+
     if (!r) {
         fclose(fp);
         return -1;
@@ -58,20 +76,44 @@ int archivio_add(Record *r) {
     to_write = *r;
     to_write.cancellato = 0;
 
+    fseek(fp, 0, SEEK_END); // Posiziono il puntatore alla fine del file per aggiungere il nuovo record
     if (fwrite(&to_write, sizeof(Record), 1, fp) != 1) {
         fclose(fp);
         return -1;
     }
+
+    h.record_totali++; // Incremento il contatore dei record totali (inclusi quelli cancellati)
+    fseek(fp, 0, SEEK_SET); // Torno all'inizio del file per aggiornare l'header
+    fwrite(&h, sizeof(Header), 1, fp); // Aggiorno l'header con i nuovi contatori
+
     fclose(fp);
     return 1;
 }
 
-int archivio_read_all(void) {
+int archivio_read_all(int is_admin) {
+    Header h;
     Record r;
     int count = 0;
+    int percentuale_cancellati = 0;
+
     FILE *fp = fopen(ARCHIVE_PATH, "rb");
     if (!fp) {
         return -1;
+    }
+
+    // Leggo l'header per ottenere i contatori aggiornati. Se la lettura fallisce, inizializzo i contatori a zero
+    if (fread(&h, sizeof(Header), 1, fp) != 1) {
+        h.record_totali = 0;
+        h.record_cancellati = 0;
+    }
+
+    if (is_admin == 1) {
+        // Calcolo la percentuale di record cancellati (logicamente) rispetto al totale, evitando la divisione per zero
+        if (h.record_totali > 0) {
+            percentuale_cancellati = (h.record_cancellati * 100) / h.record_totali;
+        }
+        printf("---- Statistiche ----\n");
+        printf("Totale record: %u (Cancellati: %u) | Percentuale record cancellati: %d%%\n\n", h.record_totali, h.record_cancellati, percentuale_cancellati);
     }
 
     printf("---- Archivio ----\n");
@@ -92,6 +134,9 @@ int archivio_update(const char *matricola, const Record *nuovo) {
     if (!fp) {
         return -1;
     }
+
+    // Salto l'header
+    fseek(fp, sizeof(Header), SEEK_SET);
 
     while (fread(&r, sizeof(Record), 1, fp) == 1) {
         if (strcmp(r.matricola, matricola) == 0 && r.cancellato == 0) {
@@ -121,6 +166,7 @@ int archivio_update(const char *matricola, const Record *nuovo) {
     return 0;
 }
 
+// Da modificare (trasformare in compattazione?)
 int archivio_delete_physical(const char *matricola) {
     int found = 0;
     Record r;
@@ -164,10 +210,17 @@ int archivio_delete_physical(const char *matricola) {
 }
 
 int archivio_delete_logical(const char *matricola) {
+    Header h;
     Record r;
     FILE *fp = fopen(ARCHIVE_PATH, "r+b");
     // controllo di sicurezza per apertura del file (-1 rappresenta un errore)
     if (!fp) {
+        return -1;
+    }
+
+    // Leggo l'header per ottenere i contatori aggiornati
+    if (fread(&h, sizeof(Header), 1, fp) != 1) {
+        fclose(fp);
         return -1;
     }
 
@@ -187,6 +240,12 @@ int archivio_delete_logical(const char *matricola) {
                 fclose(fp);
                 return -1;
             }
+
+            // Aggiorna l'header incrementando il contatore dei record cancellati (logicamente)
+            h.record_cancellati++;
+            fseek(fp, 0, SEEK_SET); // Torno a inizio file
+            fwrite(&h, sizeof(Header), 1, fp);
+
             fclose(fp);
             return 1; // Successo
         }
@@ -197,9 +256,16 @@ int archivio_delete_logical(const char *matricola) {
 }
 
 int archivio_restore(const char *matricola) {
+    Header h;
     Record r;
     FILE *fp = fopen(ARCHIVE_PATH, "r+b");
     if (!fp) {
+        return -1;
+    }
+
+    // Leggo l'header per ottenere i contatori aggiornati
+    if (fread(&h, sizeof(Header), 1, fp) != 1) {
+        fclose(fp);
         return -1;
     }
 
@@ -215,6 +281,12 @@ int archivio_restore(const char *matricola) {
                 fclose(fp);
                 return -1;
             }
+
+            // Aggiorno l'header decrementando il contatore dei record cancellati (logicamente)
+            if (h.record_cancellati > 0) h.record_cancellati--; // Decremento solo se c'e' almeno un record cancellato, per evitare di andare in negativo
+            fseek(fp, 0, SEEK_SET);
+            fwrite(&h, sizeof(Header), 1, fp);
+
             fclose(fp);
             return 1;
         }

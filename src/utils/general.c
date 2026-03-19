@@ -157,3 +157,21 @@ void print_cstring(const void *data) {
     const char *value = (const char *)data;
     printf("%s\n", value ? value : "");
 }
+
+// La funzione clear_screen pulisce il terminale a seconda del sistema operativo
+void pulisci_schermo() {
+#ifdef _WIN32
+    system("cls");   // Comando per pulire il terminale su Windows
+#else
+    system("clear"); // Comando per pulire il terminale su Linux/macOS
+#endif
+}
+
+// La funzione pausa_console attende che l'utente prema INVIO per continuare
+void pausa_console() {
+    printf("\nPremi INVIO per continuare...");
+    fflush(stdout); // Assicura che il messaggio venga stampato prima di attendere l'input
+    
+    char buf[2];
+    fgets(buf, sizeof(buf), stdin); // Attende l'input dell'utente
+}
